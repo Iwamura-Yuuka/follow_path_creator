@@ -1,6 +1,6 @@
-#include <path_creator/path_creator.h>
+#include <simple_path_creator/simple_path_creator.h>
 
-PathCreator::PathCreator():private_nh_("~")
+SimplePathCreator::SimplePathCreator():private_nh_("~")
 {
     private_nh_.param("hz", hz_, {10});
     private_nh_.param("radius", radius_, {5.0});
@@ -15,7 +15,7 @@ PathCreator::PathCreator():private_nh_("~")
 }
 
 // 軌道中の円の中心のx座標を更新
-double PathCreator::update_center_x(double center_x)
+double SimplePathCreator::update_center_x(double center_x)
 {
     // 1回目は初期値から円の半径分だけ進める
     // 2回目以降は円の直径分だけ進める
@@ -26,7 +26,7 @@ double PathCreator::update_center_x(double center_x)
 }
 
 // y座標の正負を判定
-bool PathCreator::is_plus_sign(const double x)
+bool SimplePathCreator::is_plus_sign(const double x)
 {
     // x座標を軌道の半径の4倍の値で割ったときの余りを計算
     // 整数に対する余りは % で求められるが，浮動小数点に関しては fmod を使う
@@ -40,7 +40,7 @@ bool PathCreator::is_plus_sign(const double x)
 }
 
 // 追従軌道のy座標を計算
-double PathCreator::calc_cource_y(const double x, const double center_x)
+double SimplePathCreator::calc_cource_y(const double x, const double center_x)
 {
     // y座標の絶対値を計算
     // 円の方程式 (x-a)^2 + (y-b)^2 = R^2
@@ -54,7 +54,7 @@ double PathCreator::calc_cource_y(const double x, const double center_x)
 }
 
 // 追従軌道を生成
-void PathCreator::create_cource()
+void SimplePathCreator::create_cource()
 {
     //nav_msgs::Path path;
     //target_path_のframe_idをodomにすると，ロボットのスタート地点を(0.0, 0.0)に設定できる？
@@ -93,7 +93,7 @@ void PathCreator::create_cource()
 }
 
 // メイン文で実行する関数
-void PathCreator::process()
+void SimplePathCreator::process()
 {
     ros::Rate loop_rate(hz_);
     create_cource();
@@ -110,8 +110,8 @@ void PathCreator::process()
 // メイン関数
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "path_creator");
-    PathCreator pathcreator;
-    pathcreator.process();
+    ros::init(argc, argv, "simple_path_creator");
+    SimplePathCreator s_pathcreator;
+    s_pathcreator.process();
     return 0;
 }

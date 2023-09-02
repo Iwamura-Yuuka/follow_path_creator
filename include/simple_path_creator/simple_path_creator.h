@@ -1,15 +1,15 @@
-#ifndef PATH_CREATOR_H
-#define PATH_CREATOR_H
+#ifndef SIMPLE_PATH_CREATOR_H
+#define SIMPLE_PATH_CREATOR_H
 
 #include <ros/ros.h>
 #include <nav_msgs/Path.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <cmath>
 
-class PathCreator
+class SimplePathCreator
 {
 public:
-    PathCreator();
+    SimplePathCreator();
     void process();
 
 private:
@@ -43,4 +43,4 @@ private:
 };
 
 
-#endif // PATH_CREATOR_H
+#endif // SIMPLE_PATH_CREATOR_H
