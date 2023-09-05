@@ -104,16 +104,18 @@ void FusionPathCreator::create_cource()
             ROS_INFO("center_x = %lf", center_x);  // デバック用
             ROS_INFO("Now x is %lf", x);           // デバック用
 
-            // x軸方向の目標軌道の長さを計算
-            cource_length_ += 2*radius_;
-
             // 旋回半径，円の中心座標を更新判定のカウントを0に戻す
             update_check = 0.0;
         }
 
         // 終了判定
         if(semicircle_counter_ >= semicircle_number_)
+        {
+            // x軸方向の目標軌道の長さを代入
+            cource_length_ = x;
+
             break;
+        }
 
         pose.pose.position.y = start_point_y_ + calc_cource_y(x, center_x);
         ROS_INFO("x = %lf, y = %lf", pose.pose.position.x, pose.pose.position.y);  // デバック用
