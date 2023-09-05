@@ -3,7 +3,7 @@
 FusionPathCreator::FusionPathCreator():private_nh_("~")
 {
     private_nh_.param("hz", hz_, {10});
-    private_nh_.param("semicircle_number", semicircle_number_, {10});
+    private_nh_.param("semicircle_number", semicircle_number_, {0});
     private_nh_.param("semicircle_counter", semicircle_counter_, {0});
     private_nh_.getParam("all_radius", all_radius_);  // ここだけはyamlファイルで必ず指定する
     private_nh_.param("radius", radius_, {0.0});
@@ -112,7 +112,7 @@ void FusionPathCreator::create_cource()
         }
 
         // 終了判定
-        if(semicircle_counter_ > semicircle_number_)
+        if(semicircle_counter_ >= semicircle_number_)
             break;
 
         pose.pose.position.y = start_point_y_ + calc_cource_y(x, center_x);
@@ -135,6 +135,11 @@ void FusionPathCreator::create_cource()
 void FusionPathCreator::process()
 {
     ros::Rate loop_rate(hz_);
+
+    // 軌道に含まれる半円の個数を代入
+    semicircle_number_ = all_radius_.size();
+    
+    // 追従軌道を生成
     create_cource();
     // ROS_INFO("Create path finish!");  // デバック用
 
