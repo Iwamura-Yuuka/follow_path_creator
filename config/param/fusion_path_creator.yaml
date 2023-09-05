@@ -1,0 +1,21 @@
+# 制御ループ周波数
+hz: 10                 # ループ周波数 [Hz]
+
+# 目標軌道に含まれるすべての旋回半径 [m]
+# fmodの計算でエラーが出てしまうため，必ず0.0以外にする！！
+all_radius: [3.0, 2.5, 2.0, 1.5, 1.0, 10.0, 1.0, 1.5]
+
+# 目標軌道 (半円)
+semicircle_number: 7   # 軌道に含まれる半円の個数
+semicircle_counter: 0  # 何個目の半円か
+radius: 0.0            # 各旋回半径代入用 [m]
+tmp_radius: 0.0        # center_x計算用 [m]
+
+# 目標軌道 (長さ)
+max_cource_length: 50  # x軸方向の長さの最大値 [m]
+cource_length: 0.0     # x軸方向の長さの計算用 [m]
+resolution: 0.1        # 軌道生成時の刻み幅 [m]
+
+# 初期位置
+start_point_x: 0.0     # x座標 [m]
+start_point_y: 0.0     # y座標 [m]
