@@ -6,10 +6,10 @@ hz: 10                 # ループ周波数 [Hz]
 all_radius: [3.0, 2.5, 2.0, 1.5, 1.0, 10.0, 1.0, 1.5]
 
 # 目標軌道 (半円)
-semicircle_number: 7   # 軌道に含まれる半円の個数
-semicircle_counter: 0  # 何個目の半円か
-radius: 0.0            # 各旋回半径代入用 [m]
-tmp_radius: 0.0        # center_x計算用 [m]
+#semicircle_number: 7   # 軌道に含まれる半円の個数
+#semicircle_counter: 0  # 何個目の半円か
+#radius: 0.0            # 各旋回半径代入用 [m]
+#tmp_radius: 0.0        # center_x計算用 [m]
 
 # 目標軌道 (長さ)
 max_cource_length: 50  # x軸方向の長さの最大値 [m]

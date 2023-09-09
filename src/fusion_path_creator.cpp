@@ -73,7 +73,7 @@ void FusionPathCreator::create_cource()
     // 軌道中の半円の中心を最初の旋回半径に合わせて初期化
     double center_x = all_radius_[0];
 
-    double tmp_radius = 0.0;  // center_x計算用
+    double tmp_radius = 0.0;    // center_x計算用
     double update_check = 0.0;  // 旋回半径，円の中心座標の更新判定用
 
     double x;
@@ -101,8 +101,8 @@ void FusionPathCreator::create_cource()
             
             // 円の中心座標を更新
             center_x = update_center_x(center_x);
-            ROS_INFO("center_x = %lf", center_x);  // デバック用
-            ROS_INFO("Now x is %lf", x);           // デバック用
+            // ROS_INFO("center_x = %lf", center_x);  // デバック用
+            // ROS_INFO("Now x is %lf", x);           // デバック用
 
             // 旋回半径，円の中心座標を更新判定のカウントを0に戻す
             update_check = 0.0;
@@ -118,7 +118,7 @@ void FusionPathCreator::create_cource()
         }
 
         pose.pose.position.y = start_point_y_ + calc_cource_y(x, center_x);
-        ROS_INFO("x = %lf, y = %lf", pose.pose.position.x, pose.pose.position.y);  // デバック用
+        // ROS_INFO("x = %lf, y = %lf", pose.pose.position.x, pose.pose.position.y);  // デバック用
 
         // 計算した座標を格納
         target_path_.poses.push_back(pose);
@@ -143,10 +143,10 @@ void FusionPathCreator::process()
     
     // 追従軌道を生成
     create_cource();
-    // ROS_INFO("Create path finish!");  // デバック用
 
     // 生成した軌道の長さを表示
-    ROS_INFO("Path length is %lf [m]", cource_length_ );
+    ROS_INFO_STREAM("----- Create path finish! -----");
+    ROS_INFO_STREAM("Path length is " << cource_length_ << " [m]");
     
     while(ros::ok())
     {
