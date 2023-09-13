@@ -25,8 +25,9 @@ private:
     // yamlファイルで設定可能な変数
     int hz_;                // ループ周波数 [Hz]
     double radius_;         // 目標軌道の旋回半径
-    double start_point_x_;  // スタート地点のx座標
-    double start_point_y_;  // スタート地点のy座標
+    double init_x_;         // スタート地点のx座標
+    double init_y_;         // スタート地点のy座標
+    double init_theta_;     // 生成する軌道の向き
     double cource_length_;  // 目標軌道の長さ
     double resolution_;     // 軌道生成時の刻み幅
 
