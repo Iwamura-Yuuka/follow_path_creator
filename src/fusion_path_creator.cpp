@@ -8,8 +8,9 @@ FusionPathCreator::FusionPathCreator():private_nh_("~")
     private_nh_.getParam("all_radius", all_radius_);  // ここだけはyamlファイルで必ず指定する
     private_nh_.param("radius", radius_, {0.0});
     private_nh_.param("tmp_radius", tmp_radius_, {0.0});
-    private_nh_.param("start_point_x", start_point_x_, {0.0});
-    private_nh_.param("start_point_y", start_point_y_, {0.0});
+    private_nh_.param("init_x", init_x_, {0.0});
+    private_nh_.param("init_y", init_y_, {0.0});
+    private_nh_.param("init_theta", init_theta_, {0.0});
     private_nh_.param("max_cource_length", max_cource_length_, {50});
     private_nh_.param("cource_length", cource_length_, {0.0});
     private_nh_.param("resolution", resolution_, {0.1});
@@ -83,8 +84,7 @@ void FusionPathCreator::create_cource()
         // 小数点第二位以下を切り捨て，yが虚数になるのを防ぐ
         double round_x =round(x*10);
         x = round_x/10;
-        
-        pose.pose.position.x = start_point_x_ + x;
+    
         // ROS_INFO("fmod = %lf", fmod(x, 2*radius_));  // デバック用
         
         // 半円ができたら，旋回半径，円の中心座標を更新
@@ -117,8 +117,21 @@ void FusionPathCreator::create_cource()
             break;
         }
 
-        pose.pose.position.y = start_point_y_ + calc_cource_y(x, center_x);
+        // pose.pose.position.x = init_x_ + x;  // ★
+        // pose.pose.position.y = init_y_ + calc_cource_y(x, center_x);  // ★
         // ROS_INFO("x = %lf, y = %lf", pose.pose.position.x, pose.pose.position.y);  // デバック用
+
+        // 軌道を生成する向きを変更可能にする
+        // 角度を変更しない場合は以下はコメントアウトし，★の行のコメントアウトをはずす
+        // ----- コメントアウトここから -----
+        double y = calc_cource_y(x, center_x);
+        
+        // 斜辺と角度を計算し，そこから角度を変更
+        double r = sqrt(x*x + y*y);
+        double theta = atan2(y,x);
+        pose.pose.position.x = init_x_ + r*cos(theta + init_theta_);
+        pose.pose.position.y = init_y_ + r*sin(theta + init_theta_);
+        // ----- コメントアウトここまで -----
 
         // 計算した座標を格納
         target_path_.poses.push_back(pose);
