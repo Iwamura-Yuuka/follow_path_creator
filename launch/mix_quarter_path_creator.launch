@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- config file path -->
+    <arg name="rviz_settings" default="$(find follow_path_creator)/config/rviz/mix_quarter_path_creator.rviz"/>
+    <arg name="mix_quarter_path_creator_settings" default="$(find follow_path_creator)/config/param/mix_quarter_path_creator.yaml"/>
+
+    <!-- node launch-->
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_settings)"/>
+    <node pkg="follow_path_creator" type="mix_quarter_path_creator" name="mix_quarter_path_creator" output="screen">
+        <rosparam command="load" file="$(arg mix_quarter_path_creator_settings)"/>
+    </node>
+</launch>

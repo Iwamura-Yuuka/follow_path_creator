@@ -1,0 +1,184 @@
+#include <mix_quarter_path_creator/mix_quarter_path_creator.h>
+
+MixQuarterPathCreator::MixQuarterPathCreator():private_nh_("~")
+{
+    private_nh_.param("hz", hz_, {10});
+    private_nh_.param("semicircle_number", semicircle_number_, {0});
+    private_nh_.param("semicircle_counter", semicircle_counter_, {0});
+    private_nh_.getParam("all_radius", all_radius_);  // ここだけはyamlファイルで必ず指定する
+    private_nh_.param("radius", radius_, {0.0});
+    private_nh_.param("tmp_radius", tmp_radius_, {0.0});
+    private_nh_.param("init_x", init_x_, {0.0});
+    private_nh_.param("init_y", init_y_, {0.0});
+    private_nh_.param("init_theta", init_theta_, {0.0});
+    private_nh_.param("max_cource_length", max_cource_length_, {50});
+    private_nh_.param("cource_length", cource_length_, {0.0});
+    private_nh_.param("resolution", resolution_, {0.1});
+
+    // Publisher
+    pub_target_path_ = nh_.advertise<nav_msgs::Path>("/target_path", 1);
+
+}
+
+// 軌道中の円の中心のx座標を更新
+double MixQuarterPathCreator::update_center_x(double center_x)
+{
+    // 1回目は初期値から円の半径分だけ進める
+    // 2回目以降は1つ前の旋回半径と今の旋回半径を足した分だけ進める
+    if(center_x == 0.0)
+        return radius_ / 2;
+    else
+        return center_x + tmp_radius_/2 + radius_/2;
+}
+
+// y座標の正負を判定
+bool MixQuarterPathCreator::is_plus_sign(const double center_y)
+{
+    if(center_y <= 0)
+        return true;  // プラス
+    else
+        return false;  // マイナス
+}
+
+// 追従軌道のy座標を計算
+double MixQuarterPathCreator::calc_cource_y(const double x, const double center_x, const double center_y)
+{
+    // y座標の絶対値を計算
+    // 円の方程式 (x-a)^2 + (y-b)^2 = R^2
+    double y = sqrt(pow(radius_, 2) - pow((x-center_x),2));
+
+    // y座標の符号を決定
+    if(!(is_plus_sign(center_y)))
+        y *= -1;
+
+    y += center_y;
+    
+    return y;
+}
+
+// 追従軌道を生成
+void MixQuarterPathCreator::create_cource()
+{
+    //nav_msgs::Path path;
+    //target_path_のframe_idをodomにすると，ロボットのスタート地点を(0.0, 0.0)に設定できる？
+    target_path_.header.frame_id  = "map";
+    geometry_msgs::PoseStamped pose;
+    pose.header.frame_id = "map";
+
+    // radius_に0.0が入っているとfmodの計算でエラーが出てしまうので，最初の旋回半径を代入しておく
+    radius_ = all_radius_[0];
+
+    // 軌道中の半円の中心を最初の旋回半径に合わせて初期化
+    double center_x = all_radius_[0] / 2;  // 軌道中の半円の中心のx座標
+    double center_y = all_radius_[0] / 2;  // 軌道中の半円の中心のy座標
+
+
+    double tmp_radius = 0.0;    // center_x計算用
+    double update_check = 0.0;  // 旋回半径，円の中心座標の更新判定用
+
+    double x;
+
+    for(x=0.0; x<max_cource_length_; x+=resolution_)
+    {
+        // 小数点第二位以下を切り捨て，yが虚数になるのを防ぐ
+        double round_x =round(x/resolution_);
+        x = round_x*resolution_;
+    
+        // ROS_INFO("fmod = %lf", fmod(x, 2*radius_));  // デバック用
+        
+        // 半円ができたら，旋回半径，円の中心座標を更新
+        if((update_check >= radius_-resolution_/2) && (update_check <= radius_+resolution_/2))
+        {
+            // 半円の個数のカウントを増やす
+            semicircle_counter_ ++;
+
+            // 1つ前の旋回半径を格納
+            tmp_radius_ = radius_;
+
+            // 旋回半径を更新
+            if(all_radius_[semicircle_counter_] >= resolution_/2)
+            {
+                radius_ = all_radius_[semicircle_counter_];
+                ROS_INFO("radius = %lf", radius_);  // デバック用
+            
+                // 円の中心座標を更新
+                center_x = update_center_x(center_x);
+                ROS_INFO("center_x = %lf", center_x);  // デバック用
+                ROS_INFO("Now x is %lf", x);           // デバック用
+                ROS_INFO("Now update_check is %lf", update_check);
+            }
+
+            // 旋回半径，円の中心座標を更新判定のカウントを0に戻す
+            update_check = 0.0;
+        }
+
+        // 終了判定
+        if(semicircle_counter_ >= semicircle_number_)
+        {
+            // x軸方向の目標軌道の長さを代入
+            cource_length_ = x;
+
+            break;
+        }
+
+        // pose.pose.position.x = init_x_ + x;  // ★
+        // pose.pose.position.y = init_y_ + calc_cource_y(x, center_x, center_y);  // ★
+        // ROS_INFO("x = %lf, y = %lf", pose.pose.position.x, pose.pose.position.y);  // デバック用
+
+        // 軌道を生成する向きを変更可能にする
+        // 角度を変更しない場合は以下はコメントアウトし，★の行のコメントアウトをはずす
+        // ----- コメントアウトここから -----
+        double y = calc_cource_y(x, center_x, center_y);
+        
+        // 斜辺と角度を計算し，そこから角度を変更
+        double r = sqrt(x*x + y*y);
+        double theta = atan2(y,x);
+        pose.pose.position.x = init_x_ + r*cos(theta + init_theta_);
+        pose.pose.position.y = init_y_ + r*sin(theta + init_theta_);
+        ROS_INFO("x = %lf, y = %lf", pose.pose.position.x, pose.pose.position.y);  // デバック用
+        // ----- コメントアウトここまで -----
+
+        // 計算した座標を格納
+        target_path_.poses.push_back(pose);
+
+        // 旋回半径，円の中心座標を更新判定を軌道の刻み幅分だけ進める
+        update_check += resolution_;
+    }
+    
+    // 指定された旋回直径の合計が目標軌道の長さの最大値を超えた場合
+    if(x >= max_cource_length_)
+        cource_length_ = max_cource_length_;
+
+}
+
+// メイン文で実行する関数
+void MixQuarterPathCreator::process()
+{
+    ros::Rate loop_rate(hz_);
+
+    // 軌道に含まれる半円の個数を代入
+    semicircle_number_ = all_radius_.size();
+    
+    // 追従軌道を生成
+    create_cource();
+
+    // 生成した軌道の長さを表示
+    ROS_INFO_STREAM("----- Create path finish! -----");
+    ROS_INFO_STREAM("Path length is " << cource_length_ << " [m]");
+    
+    while(ros::ok())
+    {
+        target_path_.header.stamp = ros::Time::now();
+        pub_target_path_.publish(target_path_);
+        loop_rate.sleep();
+    }
+}
+
+// メイン関数
+int main(int argc, char** argv)
+{
+    ros::init(argc, argv, "mix_quarter_path_creator");
+    MixQuarterPathCreator mq_pathcreator;
+    mq_pathcreator.process();
+    return 0;
+}

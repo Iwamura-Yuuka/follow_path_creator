@@ -140,6 +140,7 @@ add_executable(simple_path_creator src/simple_path_creator.cpp)
 add_executable(fusion_path_creator src/fusion_path_creator.cpp)
 add_executable(quarter_path_creator src/quarter_path_creator.cpp)
 add_executable(test_path_creator src/test_path_creator.cpp)
+add_executable(mix_quarter_path_creator src/mix_quarter_path_creator.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -154,6 +155,7 @@ add_dependencies(simple_path_creator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catki
 add_dependencies(fusion_path_creator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(quarter_path_creator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(test_path_creator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(mix_quarter_path_creator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -164,6 +166,7 @@ target_link_libraries(simple_path_creator ${catkin_LIBRARIES})
 target_link_libraries(fusion_path_creator ${catkin_LIBRARIES})
 target_link_libraries(quarter_path_creator ${catkin_LIBRARIES})
 target_link_libraries(test_path_creator ${catkin_LIBRARIES})
+target_link_libraries(mix_quarter_path_creator ${catkin_LIBRARIES})
 
 #############
 ## Install ##

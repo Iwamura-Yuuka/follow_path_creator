@@ -7,6 +7,6 @@ cource_length: 20   # x軸方向の長さ[m]
 resolution: 0.1     # 軌道生成時の刻み幅[m]
 
 # 初期位置
-init_x: 2.0         # x座標[m]
+init_x: -2.0         # x座標[m]
 init_y: 0.3         # y座標[m]
-init_theta: 0.75     # 生成する軌道の向き[rad]
+init_theta: 0.0     # 生成する軌道の向き[rad]
