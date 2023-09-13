@@ -4,8 +4,9 @@ QuarterPathCreator::QuarterPathCreator():private_nh_("~")
 {
     private_nh_.param("hz", hz_, {10});
     private_nh_.param("radius", radius_, {5.0});
-    private_nh_.param("start_point_x", start_point_x_, {0.0});
-    private_nh_.param("start_point_y", start_point_y_, {0.0});
+    private_nh_.param("init_x", init_x_, {0.0});
+    private_nh_.param("init_y", init_y_, {0.0});
+    private_nh_.param("init_theta", init_theta_, {0.0});
     private_nh_.param("cource_length", cource_length_, {30});
     private_nh_.param("resolution", resolution_, {0.1});
 
@@ -68,7 +69,6 @@ void QuarterPathCreator::create_cource()
         double round_x =round(x*10);
         x = round_x/10;
 
-        pose.pose.position.x = start_point_x_ + x;
         ROS_INFO("fmod = %lf", fmod(x, sqrt(2)*radius_));  // デバック用
 
         // 半円ができたら，円の中心座標を更新
@@ -83,11 +83,21 @@ void QuarterPathCreator::create_cource()
 
         }
 
-        //if(pow((x-center.x), 2) - pow(radius_, 2) >= 0.0)
-            //pose.pose.position.y = 0.0;
+        // pose.pose.position.x = init_x_ + x;  // ★
+        // pose.pose.position.y = init_y_ + calc_cource_y(x, center_x, center_y);  // ★
+        // ROS_INFO("x = %lf, y = %lf", pose.pose.position.x, pose.pose.position.y);  // デバック用
 
-        pose.pose.position.y = start_point_y_ + calc_cource_y(x, center_x, center_y);
-        ROS_INFO("x = %lf, y = %lf", pose.pose.position.x, pose.pose.position.y);  // デバック用
+        // 軌道を生成する向きを変更可能にする
+        // 角度を変更しない場合は以下はコメントアウトし，★の行のコメントアウトをはずす
+        // ----- コメントアウトここから -----
+        double y = calc_cource_y(x, center_x, center_y);
+        
+        // 斜辺と角度を計算し，そこから角度を変更
+        double r = sqrt(x*x + y*y);
+        double theta = atan2(y,x);
+        pose.pose.position.x = init_x_ + r*cos(theta + init_theta_);
+        pose.pose.position.y = init_y_ + r*sin(theta + init_theta_);
+        // ----- コメントアウトここまで -----
 
 
         target_path_.poses.push_back(pose);
