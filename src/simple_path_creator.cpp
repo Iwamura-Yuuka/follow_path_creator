@@ -59,9 +59,9 @@ void SimplePathCreator::create_cource()
 {
     //nav_msgs::Path path;
     //target_path_のframe_idをodomにすると，ロボットのスタート地点を(0.0, 0.0)に設定できる？
-    target_path_.header.frame_id  = "map";
+    target_path_.header.frame_id  = "odom";
     geometry_msgs::PoseStamped pose;
-    pose.header.frame_id = "map";
+    pose.header.frame_id = "odom";
 
     double center_x = 0.0;  // 軌道中の半円の中心
 
